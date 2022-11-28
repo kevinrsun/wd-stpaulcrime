@@ -28,6 +28,9 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+    //Return JSON array with list of codes and their corresponding incident type (ordered by code number)
+    //Want to filter for the specified codes from the comma separated list.
+
     
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
@@ -35,6 +38,8 @@ app.get('/codes', (req, res) => {
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+    //Return JSON object with list of neighborhood ids and their corresponding neighborhood name (ordered by id)
+    //Want to filter neighborhoods by the specified neighborhood code from the comma separated list.
     
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
@@ -42,6 +47,12 @@ app.get('/neighborhoods', (req, res) => {
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
+    //Return JSON object with list of crime incidents (ordered by date/time). Note date and time should be separate fields.
+    //Filter for start_date and end_date
+    //Filter for code from comma separated list
+    //Filter for police grid numbers from comma separated list
+    //Filter for neighborhood id number from comma separated list
+    //Filter for limit number for max number of incidents to include in returned json
     
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
@@ -49,6 +60,9 @@ app.get('/incidents', (req, res) => {
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
+    //Upload incident data to be inserted into the SQLite3 database
+    //Data fields: case_number, date, time, code, incident, police_grid, neighborhood_number, block
+    //Note: response should reject (status 500) if the case number already exists in the database
     
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
@@ -56,6 +70,9 @@ app.put('/new-incident', (req, res) => {
 // DELETE request handler for new crime incident
 app.delete('/new-incident', (req, res) => {
     console.log(req.body); // uploaded data
+    //Remove data from the SQLite3 database
+    //Data fields: case_number
+    //Note: reponse should reject (status 500) if the case number does not exist in the database
     
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
