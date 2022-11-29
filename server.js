@@ -47,28 +47,26 @@ app.get('/codes', (req, res) => {
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
-    //Return JSON object with list of neighborhood ids and their corresponding neighborhood name (ordered by id)
-    //Want to filter neighborhoods by the specified neighborhood code from the comma separated list.
-    let query = 'SELECT neighborhood_number and neighborhood_name FROM Neighborhoods';
+    console.log(req.query); 
 
+    let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
     let params = [];
     let clause = 'WHERE';
     if(req.query.hasOwnProperty('id')){
         if(query.includes('WHERE')){
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' neighhborhood_number = ?';
+        query = query + ' ' + clause + ' Neighborhoods.neighhborhood_number = ?';
         let id = req.query.id.toUpperCase();
         params.push(id);
     }
 
+    query = query + ' ' + ' ORDER BY neighborhood_number';
     
     db.all(query, params, (err, rows) =>{
         console.log(err);
         res.status(200).type('json').send(rows); // <-- you will need to change this
     });
-    
 });
 
 // GET request handler for crime incidents
