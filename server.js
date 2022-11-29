@@ -4,8 +4,7 @@ let path = require('path');
 
 // NPM modules
 let express = require('express');
-let sqlite3 = require('sqlite3');
-
+let sqlite3 = require('sqlite3')
 
 let db_filename = path.join(__dirname, 'db', 'stpaul_crime.sqlite3');
 
@@ -37,7 +36,7 @@ app.get('/codes', (req, res) => {
         params.push(req.query.code);
     }
 
-    query = query + " " + "ORDER BY code"; 
+    query = query + " " + "ORDER BY code";
 
     db.all(query, params, (err, rows) => {
         console.log(err);
@@ -50,15 +49,18 @@ app.get('/neighborhoods', (req, res) => {
     let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
     let params = [];
     let clause = 'WHERE';
-    if(req.query.hasOwnProperty('id')){
-        query = query + ' ' + clause + ' id IN (';
+
+    //This commented out section works, trying to do this a better way...
+    /*
+    if(req.query.hasOwnProperty('id')){ //Method to do this w/o pushing to params.. not ideal.. 
+        query = query + ' ' + clause + ' id IN ('; //put ? back and push the array as a string with just ints and commas. 
         let commaCheck = req.query.id.split(',');
         let id;
         if(commaCheck.length > 1){
             let i;
             for(i = 0; i <= commaCheck.length - 1; i++){
-                query = query + commaCheck[i];
-                //params.push(parseInt(commaCheck[i]));
+                query = query + commaCheck[i]; //Should we force throw an error if user enters an invalid id..?? 
+                //params.push(parseInt(commaCheck[i])); //struggled pushing the list of ints so went another route.
                 if(i !== commaCheck.length - 1){ //don't add comma if last item
                     query = query + ', ';
                 } else{
@@ -67,12 +69,26 @@ app.get('/neighborhoods', (req, res) => {
             }
         }
     }
-    
-    db.all(query, params, (err, rows) =>{
-        if(err){
+    */
+
+    if (req.query.hasOwnProperty('id')) { //attempt at pushing to params
+        query = query + ' ' + clause + ' id IN (';
+        let commaCheck = req.query.id.split(',');
+        let id;
+        if (commaCheck.length >= 1) {
+            const placeholders = commaCheck.map(() => "?").join(",");
+            query = query + placeholders + ', ';
+            params.push(commaCheck);
+        }
+        query = query + commaCheck + ') ORDER BY id';
+    }
+
+    db.all(query, params, (err, rows) => {
+        if (err) {
             console.log(err);
         }
-        res.status(200).type('json').send(rows); 
+        res.status(200).type('json').send(rows);
+        console.log('params: ' + params);
         console.log(query);
     });
 });
@@ -86,7 +102,7 @@ app.get('/incidents', (req, res) => {
     //Filter for police grid numbers from comma separated list
     //Filter for neighborhood id number from comma separated list
     //Filter for limit number for max number of incidents to include in returned json
-    
+
     res.status(200).type('json').send({}); // <-- you will need to change this
 });
 
@@ -96,7 +112,7 @@ app.put('/new-incident', (req, res) => {
     //Upload incident data to be inserted into the SQLite3 database
     //Data fields: case_number, date, time, code, incident, police_grid, neighborhood_number, block
     //Note: response should reject (status 500) if the case number already exists in the database
-    
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
@@ -106,7 +122,7 @@ app.delete('/new-incident', (req, res) => {
     //Remove data from the SQLite3 database
     //Data fields: case_number
     //Note: reponse should reject (status 500) if the case number does not exist in the database
-    
+
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
 
