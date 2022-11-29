@@ -50,8 +50,25 @@ app.get('/neighborhoods', (req, res) => {
     console.log(req.query); // query object (key-value pairs after the ? in the url)
     //Return JSON object with list of neighborhood ids and their corresponding neighborhood name (ordered by id)
     //Want to filter neighborhoods by the specified neighborhood code from the comma separated list.
+    let query = 'SELECT neighborhood_number and neighborhood_name FROM Neighborhoods';
+
+    let params = [];
+    let clause = 'WHERE';
+    if(req.query.hasOwnProperty('id')){
+        if(query.includes('WHERE')){
+            clause = 'AND';
+        }
+        query = query + ' ' + clause + ' neighhborhood_number = ?';
+        let id = req.query.id.toUpperCase();
+        params.push(id);
+    }
+
     
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    db.all(query, params, (err, rows) =>{
+        console.log(err);
+        res.status(200).type('json').send(rows); // <-- you will need to change this
+    });
+    
 });
 
 // GET request handler for crime incidents
