@@ -47,25 +47,33 @@ app.get('/codes', (req, res) => {
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
-    console.log(req.query); 
-
     let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
     let params = [];
     let clause = 'WHERE';
     if(req.query.hasOwnProperty('id')){
-        if(query.includes('WHERE')){
-            clause = 'AND';
+        query = query + ' ' + clause + ' id IN (';
+        let commaCheck = req.query.id.split(',');
+        let id;
+        if(commaCheck.length > 1){
+            let i;
+            for(i = 0; i <= commaCheck.length - 1; i++){
+                query = query + commaCheck[i];
+                //params.push(parseInt(commaCheck[i]));
+                if(i !== commaCheck.length - 1){ //don't add comma if last item
+                    query = query + ', ';
+                } else{
+                    query = query + ') ORDER BY id';
+                }
+            }
         }
-        query = query + ' ' + clause + ' Neighborhoods.neighhborhood_number = ?';
-        let id = req.query.id.toUpperCase();
-        params.push(id);
     }
-
-    query = query + ' ' + ' ORDER BY neighborhood_number';
     
     db.all(query, params, (err, rows) =>{
-        console.log(err);
-        res.status(200).type('json').send(rows); // <-- you will need to change this
+        if(err){
+            console.log(err);
+        }
+        res.status(200).type('json').send(rows); 
+        console.log(query);
     });
 });
 
