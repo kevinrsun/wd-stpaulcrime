@@ -50,9 +50,9 @@ app.get('/neighborhoods', (req, res) => {
     let params = [];
     let clause = 'WHERE';
 
-    //This commented out section works, trying to do this a better way...
+    //This commented-out section works, trying to do this a better way...
     /*
-    if(req.query.hasOwnProperty('id')){ //Method to do this w/o pushing to params.. not ideal.. 
+    if(req.query.hasOwnProperty('id')){ //jerry-rigged solution..
         query = query + ' ' + clause + ' id IN ('; //put ? back and push the array as a string with just ints and commas. 
         let commaCheck = req.query.id.split(',');
         let id;
@@ -71,10 +71,9 @@ app.get('/neighborhoods', (req, res) => {
     }
     */
 
-    if (req.query.hasOwnProperty('id')) { //attempt at pushing to params
+    if (req.query.hasOwnProperty('id')) {
         query = query + ' ' + clause + ' id IN (';
         let commaCheck = req.query.id.split(',');
-        let id;
         if (commaCheck.length >= 1) {
             const placeholders = commaCheck.map(() => "?").join(",");
             query = query + placeholders + ', ';
@@ -88,8 +87,6 @@ app.get('/neighborhoods', (req, res) => {
             console.log(err);
         }
         res.status(200).type('json').send(rows);
-        console.log('params: ' + params);
-        console.log(query);
     });
 });
 
@@ -103,7 +100,72 @@ app.get('/incidents', (req, res) => {
     //Filter for neighborhood id number from comma separated list
     //Filter for limit number for max number of incidents to include in returned json
 
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    //have a query var that each of the properties add to, think about how the appending logic works...
+    let query;
+
+    if (req.query.hasOwnProperty('start_date')) {
+
+    }
+
+    if (req.query.hasOwnProperty('end_date')) {
+
+    }
+
+    if (req.query.hasOwnProperty('code')) { //WILL NEED TO CHANGE WHEN COMMAS ARE ACCOUNTED FOR...
+        let query = "SELECT Codes.code, Codes.incident_type AS type FROM Codes";
+        let params = [];
+        let clause = "WHERE";
+        if(query.includes(clause)){ //check if already a where clause 
+            clause = 'AND';
+        }
+        query = query + " " + clause + " Codes.code = ?";
+        params.push(req.query.code);
+        query = query + " " + "ORDER BY code";
+
+        db.all(query, params, (err, rows) => {
+            if(err){
+                console.log(err);
+            }
+            res.status(200).type("json").send(rows);
+        });
+    }
+
+    if (req.query.hasOwnProperty('grid')) {
+
+    }
+
+    if (req.query.hasOwnProperty('neighborhood')) {
+        let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
+        let params = [];
+        let clause = 'WHERE';
+        if(query.includes(clause)){ //check if already a where clause 
+            clause = 'AND';
+        }
+        query = query + ' ' + clause + ' id IN (';
+        let commaCheck = req.query.id.split(',');
+        if (commaCheck.length >= 1) {
+            const placeholders = commaCheck.map(() => "?").join(",");
+            query = query + placeholders + ', ';
+            params.push(commaCheck);
+        }
+        query = query + commaCheck + ') ORDER BY id';
+
+        db.all(query, params, (err, rows) => {
+            if (err) {
+                console.log(err);
+            }
+            res.status(200).type('json').send(rows);
+        });
+
+    }
+
+    if (req.query.hasOwnProperty('limit')) {
+
+    }
+
+
+
+    res.status(200).type('json').send({}); //don't think will need this since doing for each property??
 });
 
 // PUT request handler for new crime incident
