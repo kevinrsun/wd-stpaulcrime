@@ -1,28 +1,28 @@
 {
-    "name": "restful-server",
-    "version": "0.0.0",
-    "description": "RESTful API Server using Node JS",
-    "author": {
-        "name": "",
-        "email": ""
+  "name": "restful-server",
+  "version": "0.0.0",
+  "description": "RESTful API Server using Node JS",
+  "author": {
+    "name": "Kevin Sun",
+    "email": "sun02840@stthomas.edu"
+  },
+  "contributors": [
+    {
+      "name": "Jack Land",
+      "email": "land7738@stthomas.edu"
     },
-    "contributors": [
-        {
-            "name": "",
-            "email": ""
-        },
-        {
-            "name": "",
-            "email": ""
-        }
-    ],
-    "main": "server.js",
-    "repository": {
-        "type": "git",
-        "url": ""
-    },
-    "dependencies": {
-        "express": "^4.18.2",
-        "sqlite3": "^5.1.2"
+    {
+      "name": "Sam McEnery",
+      "email": "sammc40c@gmail.com"
     }
+  ],
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jacklandwer/Project3-RESTfulAPI"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.2"
+  }
 }

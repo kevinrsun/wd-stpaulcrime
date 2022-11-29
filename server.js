@@ -27,12 +27,22 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
-    //Return JSON array with list of codes and their corresponding incident type (ordered by code number)
-    //Want to filter for the specified codes from the comma separated list.
+    console.log(req.query);
 
-    
-    res.status(200).type('json').send({}); // <-- you will need to change this
+    let query = "SELECT Codes.code, Codes.incident_type AS type FROM Codes";
+    let params = [];
+    let clause = "WHERE";
+    if (req.query.hasOwnProperty("code")) {
+        query = query + " " + clause + " Codes.code = ?";
+        params.push(req.query.code);
+    }
+
+    query = query + " " + "ORDER BY code"; 
+
+    db.all(query, params, (err, rows) => {
+        console.log(err);
+        res.status(200).type("json").send(rows);
+    });
 });
 
 // GET request handler for neighborhoods
