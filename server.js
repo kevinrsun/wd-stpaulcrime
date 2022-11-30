@@ -92,7 +92,6 @@ app.get('/neighborhoods', (req, res) => {
 
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
-    console.log(req.query); // query object (key-value pairs after the ? in the url)
     //Return JSON object with list of crime incidents (ordered by date/time). Note date and time should be separate fields.
     //Filter for start_date and end_date
     //Filter for code from comma separated list
@@ -100,119 +99,95 @@ app.get('/incidents', (req, res) => {
     //Filter for neighborhood id number from comma separated list
     //Filter for limit number for max number of incidents to include in returned json
 
-    //have a query var that each of the properties add to, think about how the appending logic works...
-    let query;
+    let query = 'SELECT * FROM Incidents'; 
+    let params = []; //do we want params out here or individual ones for the properties..??
 
     if (req.query.hasOwnProperty('start_date')) {
-        let query = "SELECT Incidents.date_time FROM Incidents";
         let params = [];
-        let clause = "WHERE";
-        if(query.includes(clause)){ //check if already a where clause 
+        let clause = 'WHERE';
+        if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + " " + clause + " Incidents.date_time = ?";
+        query = query + ' ' + clause + ' Incidents.date_time = ?'; //Should add to query where clause 
         params.push(req.query.code);
-        query = query + " " + "ORDER BY date_time";
+        query = query + ' ORDER BY date_time';
 
-        db.all(query, params, (err, rows) => {
-            if(err){
-                console.log(err);
-            }
-            res.status(200).type("json").send(rows);
-        });
     }
 
     if (req.query.hasOwnProperty('end_date')) {
-        let query = "SELECT Incidents.date_time FROM Incidents";
-        let params = [];
-        let clause = "WHERE";
-        if(query.includes(clause)){ //check if already a where clause 
-            clause = 'AND';
-        }
-        query = query + " " + clause + " Incidents.date_time = ?";
-        params.push(req.query.code);
-        query = query + " " + "ORDER BY date_time";
-
-        db.all(query, params, (err, rows) => {
-            if(err){
-                console.log(err);
-            }
-            res.status(200).type("json").send(rows);
-        });
-    }
-    
-
-    if (req.query.hasOwnProperty('code')) { //WILL NEED TO CHANGE WHEN COMMAS ARE ACCOUNTED FOR...
-        let query = "SELECT Codes.code, Codes.incident_type AS type FROM Codes";
-        let params = [];
-        let clause = "WHERE";
-        if(query.includes(clause)){ //check if already a where clause 
-            clause = 'AND';
-        }
-        query = query + " " + clause + " Codes.code = ?";
-        params.push(req.query.code);
-        query = query + " " + "ORDER BY code";
-
-        db.all(query, params, (err, rows) => {
-            if(err){
-                console.log(err);
-            }
-            res.status(200).type("json").send(rows);
-        });
-    }
-
-    if (req.query.hasOwnProperty('grid')) {
-        let query = "SELECT Incidents.police_grid FROM Incidents";
-        let params = [];
-        let clause = "WHERE";
-        if(query.includes(clause)){ //check if already a where clause 
-            clause = 'AND';
-        }
-        query = query + " " + clause + " Incidents.police_grid = ?";
-        params.push(req.query.code);
-        query = query + " " + "ORDER BY police_grid";
-
-        db.all(query, params, (err, rows) => {
-            if(err){
-                console.log(err);
-            }
-            res.status(200).type("json").send(rows);
-        });
-    }
-    
-
-    if (req.query.hasOwnProperty('neighborhood')) {
-        let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
         let params = [];
         let clause = 'WHERE';
-        if(query.includes(clause)){ //check if already a where clause 
+        if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' id IN (';
-        let commaCheck = req.query.id.split(',');
+        query = query + ' ' + clause + ' Incidents.date_time = ?'; //Should add to query where clause 
+        params.push(req.query.code);
+        query = query + ' ORDER BY date_time';
+
+    }
+
+    if (req.query.hasOwnProperty('code')) { //ADD SUPPORT FOR COMMAS
+        let params = [];
+        let clause = 'WHERE';
+        if(query.includes(clause)){ 
+            clause = 'AND';
+        }
+        query = query + ' ' + clause + ' Incidents.code = ?'; //Should add to query where clause 
+        params.push(req.query.code);
+        query = query + ' ORDER BY code';
+
+    }
+
+    if (req.query.hasOwnProperty('grid')) { //ADD SUPPORT FOR COMMAS
+        let params = [];
+        let clause = 'WHERE';
+        if(query.includes(clause)){ 
+            clause = 'AND';
+        }
+        query = query + ' ' + clause + ' Incidents.police_grid = ?'; //Should add to query where clause 
+        params.push(req.query.code);
+        query = query + ' ORDER BY police_grid';
+
+    }
+
+    if (req.query.hasOwnProperty('neighborhood')) {
+        let params = [];
+        let clause = 'WHERE';
+        if(query.includes(clause)){ 
+            clause = 'AND';
+        }
+        query = query + ' ' + clause + ' Incidents.neighborhood_number IN (';
+        let commaCheck = req.query.neighborhood.split(',');
         if (commaCheck.length >= 1) {
             const placeholders = commaCheck.map(() => "?").join(",");
             query = query + placeholders + ', ';
             params.push(commaCheck);
         }
-        query = query + commaCheck + ') ORDER BY id';
-
-        db.all(query, params, (err, rows) => {
-            if (err) {
-                console.log(err);
-            }
-            res.status(200).type('json').send(rows);
-        });
+        query = query + commaCheck + ')';
 
     }
 
-    //if (req.query.hasOwnProperty('limit')) {
+    query = query + ' ORDER BY date_time'; //Adds ORDER BY clause before LIMIT clause.
 
-    //}
+    if (req.query.hasOwnProperty('limit')) {
+        let params = [];
+        query = query + ' LIMIT ?';
+        let limit = req.query.limit;
+        params.push(limit);
+
+    } else{ //by default the limit should be 1000
+        query = query + ' LIMIT 1000';
+    }
 
 
-
-    res.status(200).type('json').send({}); //don't think will need this since doing for each property??
+    db.all(query, params, (err, rows) => {
+        if (err){
+            console.log(err);
+        }
+        res.status(200).type('json').send(rows); 
+        console.log(query);
+    });
+    
 });
 
 // PUT request handler for new crime incident
