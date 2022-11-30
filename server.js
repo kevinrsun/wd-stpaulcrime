@@ -100,7 +100,7 @@ app.get('/incidents', (req, res) => {
     //Filter for limit number for max number of incidents to include in returned json
 
     let query = 'SELECT * FROM Incidents'; 
-    let params = []; //do we want params out here or individual ones for the properties..??
+    let params = []; //do we want params out here or individual ones for the properties..?? Or might not need this at all...
 
     if (req.query.hasOwnProperty('start_date')) {
         let params = [];
@@ -108,9 +108,10 @@ app.get('/incidents', (req, res) => {
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' Incidents.date_time = ?'; //Should add to query where clause 
-        params.push(req.query.code);
-        query = query + ' ORDER BY date_time';
+        query = query + ' ' + clause + ' Incidents.date_time >= '; //check this comparison
+        let startDate = req.query.start_date;
+        params.push(req.query.start_date);
+        query = query + startDate;
 
     }
 
@@ -120,9 +121,10 @@ app.get('/incidents', (req, res) => {
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' Incidents.date_time = ?'; //Should add to query where clause 
-        params.push(req.query.code);
-        query = query + ' ORDER BY date_time';
+        query = query + ' ' + clause + ' Incidents.date_time <= '; //check this comparison
+        let endDate = req.query.end_date;
+        params.push(req.query.end_date);
+        query = query + endDate;
 
     }
 
@@ -132,9 +134,10 @@ app.get('/incidents', (req, res) => {
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' Incidents.code = ?'; //Should add to query where clause 
+        query = query + ' ' + clause + ' Incidents.code = ';
+        let code = req.query.code;
         params.push(req.query.code);
-        query = query + ' ORDER BY code';
+        query = query + code;
 
     }
 
@@ -144,9 +147,14 @@ app.get('/incidents', (req, res) => {
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' Incidents.police_grid = ?'; //Should add to query where clause 
-        params.push(req.query.code);
-        query = query + ' ORDER BY police_grid';
+        query = query + ' ' + clause + ' Incidents.police_grid IN ('; 
+        let grid = req.query.grid.split(',');
+        if(grid.length >= 1){
+            const placeholders = grid.map(() => "?").join(",");
+            query = query + placeholders + ', ';
+            params.push(grid);
+        }
+        query = query + grid + ')';
 
     }
 
@@ -171,9 +179,10 @@ app.get('/incidents', (req, res) => {
 
     if (req.query.hasOwnProperty('limit')) {
         let params = [];
-        query = query + ' LIMIT ?';
+        query = query + ' LIMIT ';
         let limit = req.query.limit;
         params.push(limit);
+        query = query + limit;
 
     } else{ //by default the limit should be 1000
         query = query + ' LIMIT 1000';
@@ -246,5 +255,3 @@ app.listen(port, () => {
     console.log('Now listening on port ' + port);
 });
 
-
-//THIS IS WHAT ENTERED INTO MAC TERMINAL IN CLASS FRIDAY: curl -X PUT "http://localhost:8000/new-incide" -H "Content-Type: application/json" -d "{\"key1\": 42}"
