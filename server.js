@@ -104,12 +104,43 @@ app.get('/incidents', (req, res) => {
     let query;
 
     if (req.query.hasOwnProperty('start_date')) {
+        let query = "SELECT Incidents.date_time FROM Incidents";
+        let params = [];
+        let clause = "WHERE";
+        if(query.includes(clause)){ //check if already a where clause 
+            clause = 'AND';
+        }
+        query = query + " " + clause + " Incidents.date_time = ?";
+        params.push(req.query.code);
+        query = query + " " + "ORDER BY date_time";
 
+        db.all(query, params, (err, rows) => {
+            if(err){
+                console.log(err);
+            }
+            res.status(200).type("json").send(rows);
+        });
     }
 
     if (req.query.hasOwnProperty('end_date')) {
+        let query = "SELECT Incidents.date_time FROM Incidents";
+        let params = [];
+        let clause = "WHERE";
+        if(query.includes(clause)){ //check if already a where clause 
+            clause = 'AND';
+        }
+        query = query + " " + clause + " Incidents.date_time = ?";
+        params.push(req.query.code);
+        query = query + " " + "ORDER BY date_time";
 
+        db.all(query, params, (err, rows) => {
+            if(err){
+                console.log(err);
+            }
+            res.status(200).type("json").send(rows);
+        });
     }
+    
 
     if (req.query.hasOwnProperty('code')) { //WILL NEED TO CHANGE WHEN COMMAS ARE ACCOUNTED FOR...
         let query = "SELECT Codes.code, Codes.incident_type AS type FROM Codes";
@@ -131,8 +162,24 @@ app.get('/incidents', (req, res) => {
     }
 
     if (req.query.hasOwnProperty('grid')) {
+        let query = "SELECT Incidents.police_grid FROM Incidents";
+        let params = [];
+        let clause = "WHERE";
+        if(query.includes(clause)){ //check if already a where clause 
+            clause = 'AND';
+        }
+        query = query + " " + clause + " Incidents.police_grid = ?";
+        params.push(req.query.code);
+        query = query + " " + "ORDER BY police_grid";
 
+        db.all(query, params, (err, rows) => {
+            if(err){
+                console.log(err);
+            }
+            res.status(200).type("json").send(rows);
+        });
     }
+    
 
     if (req.query.hasOwnProperty('neighborhood')) {
         let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
@@ -159,9 +206,9 @@ app.get('/incidents', (req, res) => {
 
     }
 
-    if (req.query.hasOwnProperty('limit')) {
+    //if (req.query.hasOwnProperty('limit')) {
 
-    }
+    //}
 
 
 
@@ -184,6 +231,7 @@ app.delete('/new-incident', (req, res) => {
     //Remove data from the SQLite3 database
     //Data fields: case_number
     //Note: reponse should reject (status 500) if the case number does not exist in the database
+    
 
     res.status(200).type('txt').send('OK'); // <-- you may need to change this
 });
