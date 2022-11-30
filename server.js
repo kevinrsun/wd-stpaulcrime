@@ -99,16 +99,16 @@ app.get('/incidents', (req, res) => {
     //Filter for neighborhood id number from comma separated list
     //Filter for limit number for max number of incidents to include in returned json
 
-    let query = 'SELECT * FROM Incidents'; 
+    let query = 'SELECT case_number, SUBSTRING(date_time, 1, 10) AS date, SUBSTRING(date_time, 12, 19) AS time, code, incident, police_grid, neighborhood_number, block FROM Incidents'; //'SELECT * FROM Incidents'
     let params = []; //do we want params out here or individual ones for the properties..?? Or might not need this at all...
 
-    if (req.query.hasOwnProperty('start_date')) {
+    if (req.query.hasOwnProperty('start_date')) { //DATE/TIME NEED TO BE SEPARATED 
         let params = [];
         let clause = 'WHERE';
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' Incidents.date_time >= '; //check this comparison
+        query = query + ' ' + clause + ' date >= '; //check this comparison
         let startDate = req.query.start_date;
         params.push(req.query.start_date);
         query = query + startDate;
@@ -121,7 +121,7 @@ app.get('/incidents', (req, res) => {
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' Incidents.date_time <= '; //check this comparison
+        query = query + ' ' + clause + ' date <= '; //check this comparison
         let endDate = req.query.end_date;
         params.push(req.query.end_date);
         query = query + endDate;
@@ -141,7 +141,7 @@ app.get('/incidents', (req, res) => {
 
     }
 
-    if (req.query.hasOwnProperty('grid')) { //ADD SUPPORT FOR COMMAS
+    if (req.query.hasOwnProperty('grid')) { 
         let params = [];
         let clause = 'WHERE';
         if(query.includes(clause)){ 
@@ -155,7 +155,6 @@ app.get('/incidents', (req, res) => {
             params.push(grid);
         }
         query = query + grid + ')';
-
     }
 
     if (req.query.hasOwnProperty('neighborhood')) {
@@ -172,10 +171,9 @@ app.get('/incidents', (req, res) => {
             params.push(commaCheck);
         }
         query = query + commaCheck + ')';
-
     }
 
-    query = query + ' ORDER BY date_time'; //Adds ORDER BY clause before LIMIT clause.
+    query = query + ' ORDER BY date, time'; //Adds ORDER BY clause before LIMIT clause.
 
     if (req.query.hasOwnProperty('limit')) {
         let params = [];
@@ -183,7 +181,6 @@ app.get('/incidents', (req, res) => {
         let limit = req.query.limit;
         params.push(limit);
         query = query + limit;
-
     } else{ //by default the limit should be 1000
         query = query + ' LIMIT 1000';
     }
