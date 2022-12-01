@@ -26,8 +26,6 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
-    console.log(req.query);
-
     let query = "SELECT Codes.code, Codes.incident_type AS type FROM Codes";
     let params = [];
     let clause = "WHERE";
@@ -55,27 +53,6 @@ app.get('/neighborhoods', (req, res) => {
     let params = [];
     let clause = 'WHERE';
 
-    //This commented-out section works, trying to do this a better way...
-    /*
-    if(req.query.hasOwnProperty('id')){ //jerry-rigged solution..
-        query = query + ' ' + clause + ' id IN ('; //put ? back and push the array as a string with just ints and commas. 
-        let commaCheck = req.query.id.split(',');
-        let id;
-        if(commaCheck.length > 1){
-            let i;
-            for(i = 0; i <= commaCheck.length - 1; i++){
-                query = query + commaCheck[i]; //Should we force throw an error if user enters an invalid id..?? 
-                //params.push(parseInt(commaCheck[i])); //struggled pushing the list of ints so went another route.
-                if(i !== commaCheck.length - 1){ //don't add comma if last item
-                    query = query + ', ';
-                } else{
-                    query = query + ') ORDER BY id';
-                }
-            }
-        }
-    }
-    */
-
     if (req.query.hasOwnProperty('id')) {
         query = query + ' ' + clause + ' id IN (';
         let commaCheck = req.query.id.split(',');
@@ -97,15 +74,8 @@ app.get('/neighborhoods', (req, res) => {
 
 // GET request handler for crime incidents
 app.get('/incidents', (req, res) => {
-    //Return JSON object with list of crime incidents (ordered by date/time). Note date and time should be separate fields.
-    //Filter for start_date and end_date
-    //Filter for code from comma separated list
-    //Filter for police grid numbers from comma separated list
-    //Filter for neighborhood id number from comma separated list
-    //Filter for limit number for max number of incidents to include in returned json
-
-    let query = 'SELECT case_number, SUBSTRING(date_time, 1, 10) AS date, SUBSTRING(date_time, 12, 19) AS time, code, incident, police_grid, neighborhood_number, block FROM Incidents'; //'SELECT * FROM Incidents'
-    let params = []; //do we want params out here or individual ones for the properties..?? Or might not need this at all...
+    let query = 'SELECT case_number, SUBSTRING(date_time, 1, 10) AS date, SUBSTRING(date_time, 12, 19) AS time, code, incident, police_grid, neighborhood_number, block FROM Incidents';
+    let params = []; 
 
     if (req.query.hasOwnProperty('start_date')) { //DATE/TIME NEED TO BE SEPARATED 
         let params = [];
@@ -178,7 +148,8 @@ app.get('/incidents', (req, res) => {
         query = query + commaCheck + ')';
     }
 
-    query = query + ' ORDER BY date, time'; //Adds ORDER BY clause before LIMIT clause.
+    //CHECK THE ORDERING OF DATE AND TIME TO SEE IF THIS IS WORKING RIGHT
+    query = query + ' ORDER BY date, time'; //Adds ORDER BY clause before LIMIT clause. 
 
     if (req.query.hasOwnProperty('limit')) {
         let params = [];
