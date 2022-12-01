@@ -32,11 +32,16 @@ app.get('/codes', (req, res) => {
     let params = [];
     let clause = "WHERE";
     if (req.query.hasOwnProperty("code")) {
-        query = query + " " + clause + " Codes.code = ?";
-        params.push(req.query.code);
+        query = query + " " + clause + " Codes.code IN (";
+        let commaCheck = req.query.code.split(",");
+        if (commaCheck.length >= 1) {
+            const placeholders = commaCheck.map(() => "?").join(",");
+            query = query + placeholders + ", ";
+            params.push(commaCheck);
+        }
+        query = query + commaCheck + ") ORDER BY code";
     }
 
-    query = query + " " + "ORDER BY code";
 
     db.all(query, params, (err, rows) => {
         console.log(err);
@@ -207,8 +212,9 @@ app.put('/new-incident', (req, res) => {
 });
 
 // DELETE request handler for new crime incident
-app.delete('/new-incident', (req, res) => {
-    console.log(req.body); // uploaded data
+app.delete('/remove-incident', (req, res) => {
+    let case_number = req.body.case_number;
+    console.log(case_number); // uploaded data
     //Remove data from the SQLite3 database
     //Data fields: case_number
     //Note: reponse should reject (status 500) if the case number does not exist in the database
