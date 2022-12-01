@@ -26,8 +26,6 @@ let db = new sqlite3.Database(db_filename, sqlite3.OPEN_READWRITE, (err) => {
 
 // GET request handler for crime codes
 app.get('/codes', (req, res) => {
-    console.log(req.query);
-
     let query = "SELECT Codes.code, Codes.incident_type AS type FROM Codes";
     let params = [];
     let clause = "WHERE";
@@ -53,8 +51,6 @@ app.get('/codes', (req, res) => {
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
-    console.log(req.query);
-
     let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
     let params = [];
     let clause = 'WHERE';
@@ -156,7 +152,7 @@ app.get('/incidents', (req, res) => {
         query = query + commaCheck + ')';
     }
 
-    query = query + ' ORDER BY date, time'; //Adds ORDER BY clause before LIMIT clause. 
+    query = query + ' ORDER BY date, time';
 
     if (req.query.hasOwnProperty('limit')) {
         let params = [];
@@ -164,11 +160,10 @@ app.get('/incidents', (req, res) => {
         let limit = req.query.limit;
         params.push(limit);
         query = query + limit;
-    } else{ //by default the limit should be 1000
+    } else{
         query = query + ' LIMIT 1000';
     }
 
-    console.log(query);
     databaseSelect(query, params)
     .then((data) => {
         res.status(200).type("json").send(data);
@@ -181,10 +176,6 @@ app.get('/incidents', (req, res) => {
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
     let case_number = req.body.case_number;
-    console.log(req.body);
-    //Upload incident data to be inserted into the SQLite3 database
-    //Data fields: case_number, date, time, code, incident, police_grid, neighborhood_number, block
-    //Note: response should reject (status 500) if the case number already exists in the database
     let query = "SELECT * FROM Incidents WHERE case_number = ?";
     let queryInsert = 'INSERT INTO Incidents (case_number, date_time , code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)';
     let params = [];
@@ -216,15 +207,9 @@ app.put('/new-incident', (req, res) => {
     })
 });
 
-
-
-
-
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
     let case_number = req.body.case_number;
-    console.log(case_number);
-
     let query = "SELECT * FROM Incidents WHERE case_number = ?";
     let queryDelete = "DELETE FROM Incidents WHERE case_number = ?";
     let params = [];

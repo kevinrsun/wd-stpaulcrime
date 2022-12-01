@@ -3,13 +3,17 @@
   "version": "0.0.0",
   "description": "RESTful API Server using Node JS",
   "author": {
-    "name": "Kevin Sun",
-    "email": "sun02840@stthomas.edu"
+    "name": "Jack Landwer",
+    "email": "land7738@stthomas.edu"
   },
   "contributors": [
     {
-      "name": "Jack Land",
+      "name": "Jack Landwer",
       "email": "land7738@stthomas.edu"
+    },
+    {
+      "name": "Kevin Sun",
+      "email": "sun02840@stthomas.edu"
     },
     {
       "name": "Sam McEnery",
