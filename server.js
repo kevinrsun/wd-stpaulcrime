@@ -176,13 +176,45 @@ app.get('/incidents', (req, res) => {
 
 // PUT request handler for new crime incident
 app.put('/new-incident', (req, res) => {
-    console.log(req.body); // uploaded data
+    let case_number = req.body.case_number;
+    console.log(req.body);
     //Upload incident data to be inserted into the SQLite3 database
     //Data fields: case_number, date, time, code, incident, police_grid, neighborhood_number, block
     //Note: response should reject (status 500) if the case number already exists in the database
+    let query = "SELECT * FROM Incidents WHERE case_number = ?";
+    let queryInsert = 'INSERT INTO Incidents (case_number, date_time , code, incident, police_grid, neighborhood_number, block) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    let params = [];
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    params.push(req.body.case_number);
+    params.push(req.body.date_time);
+    params.push(req.body.code);
+    params.push(req.body.incident);
+    params.push(req.body.police_grid);
+    params.push(req.body.neighborhood_number);
+    params.push(req.body.block);
+
+    databaseSelect(query, case_number)
+    .then((data) => {
+        if(data.length > 0) {
+            res.status(500).type("text").send("Case number already exists");
+            return false;
+        } else {
+            return databaseRun(queryInsert, params);
+        }
+    })
+    .then((data) => {
+        if(data !== false) {
+            res.status(200).type("text").send("Case number has been Inserted");
+        }
+    })
+    .then((err) => {
+        console.log(err);
+    })
 });
+
+
+
+
 
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
