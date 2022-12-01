@@ -114,10 +114,14 @@ app.get('/incidents', (req, res) => {
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' Incidents.code = ';
-        let code = req.query.code;
-        params.push(req.query.code);
-        query = query + code;
+        query = query + ' ' + clause + ' Incidents.code IN (';
+        let code = req.query.code.split(',');
+        if(code.length >= 1){
+            const placeholders = code.map(() => "?").join(",");
+            query = query + placeholders + ', ';
+            params.push(code);
+        }
+        query = query + code + ')';
     }
 
     if (req.query.hasOwnProperty('grid')) { 
@@ -164,7 +168,7 @@ app.get('/incidents', (req, res) => {
         query = query + ' LIMIT 1000';
     }
 
-
+    console.log(query);
     databaseSelect(query, params)
     .then((data) => {
         res.status(200).type("json").send(data);
