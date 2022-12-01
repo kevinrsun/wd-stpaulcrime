@@ -42,15 +42,19 @@ app.get('/codes', (req, res) => {
         query = query + commaCheck + ") ORDER BY code";
     }
 
-
-    db.all(query, params, (err, rows) => {
+    databaseSelect(query, params)
+    .then((data) => {
+        res.status(200).type("json").send(data);
+    })
+    .catch((err) => {
         console.log(err);
-        res.status(200).type("json").send(rows);
-    });
+    })
 });
 
 // GET request handler for neighborhoods
 app.get('/neighborhoods', (req, res) => {
+    console.log(req.query);
+
     let query = 'SELECT Neighborhoods.neighborhood_number AS id, Neighborhoods.neighborhood_name AS name FROM Neighborhoods';
     let params = [];
     let clause = 'WHERE';
@@ -87,11 +91,12 @@ app.get('/neighborhoods', (req, res) => {
         query = query + commaCheck + ') ORDER BY id';
     }
 
-    db.all(query, params, (err, rows) => {
-        if (err) {
-            console.log(err);
-        }
-        res.status(200).type('json').send(rows);
+    databaseSelect(query, params)
+    .then((data) => {
+        res.status(200).type("json").send(data);
+    })
+    .catch((err) => {
+        console.log(err);
     });
 });
 
@@ -191,14 +196,13 @@ app.get('/incidents', (req, res) => {
     }
 
 
-    db.all(query, params, (err, rows) => {
-        if (err){
-            console.log(err);
-        }
-        res.status(200).type('json').send(rows); 
-        console.log(query);
+    databaseSelect(query, params)
+    .then((data) => {
+        res.status(200).type("json").send(data);
+    })
+    .catch((err) => {
+        console.log(err);
     });
-    
 });
 
 // PUT request handler for new crime incident
@@ -214,13 +218,30 @@ app.put('/new-incident', (req, res) => {
 // DELETE request handler for new crime incident
 app.delete('/remove-incident', (req, res) => {
     let case_number = req.body.case_number;
-    console.log(case_number); // uploaded data
-    //Remove data from the SQLite3 database
-    //Data fields: case_number
-    //Note: reponse should reject (status 500) if the case number does not exist in the database
-    
+    console.log(case_number);
 
-    res.status(200).type('txt').send('OK'); // <-- you may need to change this
+    let query = "SELECT * FROM Incidents WHERE case_number = ?";
+    let queryDelete = "DELETE FROM Incidents WHERE case_number = ?";
+    let params = [];
+    params.push(case_number);
+
+    databaseSelect(query, params)
+    .then((data) => {
+        if(data.length === 0) {
+            res.status(500).type("text").send("Case number not exist");
+            return false;
+        } else {
+            return databaseRun(queryDelete, params);
+        }
+    })
+    .then((data) => {
+        if(data !== false) {
+            res.status(200).type("text").send("Case number has been delete");
+        }
+    })
+    .then((err) => {
+        console.log(err);
+    })
 });
 
 
