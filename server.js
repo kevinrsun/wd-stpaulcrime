@@ -77,17 +77,16 @@ app.get('/incidents', (req, res) => {
     let query = 'SELECT case_number, SUBSTRING(date_time, 1, 10) AS date, SUBSTRING(date_time, 12, 19) AS time, code, incident, police_grid, neighborhood_number, block FROM Incidents';
     let params = []; 
 
-    if (req.query.hasOwnProperty('start_date')) { //DATE/TIME NEED TO BE SEPARATED 
+    if (req.query.hasOwnProperty('start_date')) { 
         let params = [];
         let clause = 'WHERE';
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' date >= '; //check this comparison
+        query = query + ' ' + clause + ' date >= '; 
         let startDate = req.query.start_date;
         params.push(req.query.start_date);
-        query = query + startDate;
-
+        query = query + '"' + startDate + '"';
     }
 
     if (req.query.hasOwnProperty('end_date')) {
@@ -96,14 +95,13 @@ app.get('/incidents', (req, res) => {
         if(query.includes(clause)){ 
             clause = 'AND';
         }
-        query = query + ' ' + clause + ' date <= '; //check this comparison
+        query = query + ' ' + clause + ' date <= '; 
         let endDate = req.query.end_date;
         params.push(req.query.end_date);
-        query = query + endDate;
-
+        query = query + '"' + endDate + '"';
     }
 
-    if (req.query.hasOwnProperty('code')) { //ADD SUPPORT FOR COMMAS
+    if (req.query.hasOwnProperty('code')) { 
         let params = [];
         let clause = 'WHERE';
         if(query.includes(clause)){ 
@@ -113,7 +111,6 @@ app.get('/incidents', (req, res) => {
         let code = req.query.code;
         params.push(req.query.code);
         query = query + code;
-
     }
 
     if (req.query.hasOwnProperty('grid')) { 
@@ -148,7 +145,6 @@ app.get('/incidents', (req, res) => {
         query = query + commaCheck + ')';
     }
 
-    //CHECK THE ORDERING OF DATE AND TIME TO SEE IF THIS IS WORKING RIGHT
     query = query + ' ORDER BY date, time'; //Adds ORDER BY clause before LIMIT clause. 
 
     if (req.query.hasOwnProperty('limit')) {
@@ -161,7 +157,6 @@ app.get('/incidents', (req, res) => {
         query = query + ' LIMIT 1000';
     }
 
-
     db.all(query, params, (err, rows) => {
         if (err){
             console.log(err);
@@ -169,7 +164,6 @@ app.get('/incidents', (req, res) => {
         res.status(200).type('json').send(rows); 
         console.log(query);
     });
-    
 });
 
 // PUT request handler for new crime incident
