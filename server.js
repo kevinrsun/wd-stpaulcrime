@@ -183,7 +183,7 @@ app.put('/new-incident', (req, res) => {
     let params = [];
 
     params.push(req.body.case_number);
-    params.push(req.body.date_time);
+    params.push(req.body.date + "T" + req.body.time);
     params.push(req.body.code);
     params.push(req.body.incident);
     params.push(req.body.police_grid);
@@ -196,6 +196,7 @@ app.put('/new-incident', (req, res) => {
             res.status(500).type("text").send("Case number already exists");
             return false;
         } else {
+            console.log(params);
             return databaseRun(queryInsert, params);
         }
     })
@@ -203,9 +204,6 @@ app.put('/new-incident', (req, res) => {
         if(data !== false) {
             res.status(200).type("text").send("Case number has been Inserted");
         }
-    })
-    .then((err) => {
-        console.log(err);
     })
 });
 
