@@ -106,6 +106,30 @@ app.get('/incidents', (req, res) => {
         query = query + '"' + endDate + '"';
     }
 
+    if (req.query.hasOwnProperty('start_time')) { 
+        let params = [];
+        let clause = 'WHERE';
+        if(query.includes(clause)){ 
+            clause = 'AND';
+        }
+        query = query + ' ' + clause + ' time >= '; 
+        let startTime = req.query.start_time;
+        params.push(req.query.start_time);
+        query = query + '"' + startTime + '"';
+    }
+
+    if (req.query.hasOwnProperty('end_time')) {
+        let params = [];
+        let clause = 'WHERE';
+        if(query.includes(clause)){ 
+            clause = 'AND';
+        }
+        query = query + ' ' + clause + ' time <= '; 
+        let endTime = req.query.end_time;
+        params.push(req.query.end_time);
+        query = query + '"' + endTime + '"';
+    }
+
     if (req.query.hasOwnProperty('code')) { 
         let params = [];
         let clause = 'WHERE';
@@ -154,7 +178,7 @@ app.get('/incidents', (req, res) => {
         query = query + commaCheck + ')';
     }
 
-    query = query + ' ORDER BY date, time';
+    query = query + ' ORDER BY date DESC, time DESC';
 
     if (req.query.hasOwnProperty('limit')) {
         let params = [];
