@@ -8,4 +8,6 @@ Some of these filters include "incident type", "neighborhood name", "start-time"
 
 The back-end is built with Express.js, Node.js, and the SQLite3 database. Information on crime incidents from the St. Paul public dataset can be access through the RESTful API endpoints with server requests & specific query parameters.
 
-The implementation of the front-end side of application can be found on this Github repository: [wd-stpaulcrime-vue](https://github.com/kevinrsun/wd-stpaulcrime-vue)
+Short demo video for this St. Paul Crime Incident Web Application: https://youtu.be/ZgktA1Wn71E
+
+The implementation of the front-end side of application can be found on this Github repository: [wd-stpaulcrime-vue](https://github.com/kevinrsun/wd-stpaulcrime-vue)\
